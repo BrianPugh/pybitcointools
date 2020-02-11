@@ -68,6 +68,7 @@ class ElectrumXClient(RPCClient):
         if servers:
             self.servers = servers
         else:
+            print(f"Loading {server_file}")
             self.servers = read_json(server_file, {})
         self.host = host
         self.port = port
@@ -128,6 +129,10 @@ class ElectrumXClient(RPCClient):
         return values
 
     def unspent(self, *addrs):
+        """ This method was deprecated; need to reimplement
+        """
+        raise NotImplementedError
+
         requests = [("blockchain.address.listunspent", [addr]) for addr in addrs]
         results = self.rpc_multiple_send_and_wait(requests)
         unspents = []
@@ -138,6 +143,20 @@ class ElectrumXClient(RPCClient):
             addr = result['params'][0]
             for u in unspent_for_addr:
                 u['address'] = addr
+                unspents.append(u)
+        return unspents
+
+    def unspent_script(self, *hashes):
+        requests = [("blockchain.scripthash.listunspent", [h]) for h in hashes]
+        results = self.rpc_multiple_send_and_wait(requests)
+        unspents = []
+        for i, result in enumerate(results):
+            if result['error']:
+                raise Exception(result['error'])
+            unspent_for_script = result['data']
+            script = result['params'][0]
+            for u in unspent_for_script:
+                u['script'] = script
                 unspents.append(u)
         return unspents
 

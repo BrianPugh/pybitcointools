@@ -102,6 +102,12 @@ class BaseCoin(object):
         """
         return self.rpc_client.unspent(*addrs)
 
+    def unspent_script(self, *scripts):
+        """
+        Get unspent transactions for script
+        """
+        return self.rpc_client.unspent_script(*scripts)
+
     def history(self, *addrs, **kwargs):
         """
         Get transaction history for addresses
